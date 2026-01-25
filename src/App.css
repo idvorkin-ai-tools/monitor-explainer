@@ -1,0 +1,222 @@
+.app {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+  font-family: system-ui, -apple-system, sans-serif;
+}
+
+header {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+header h1 {
+  font-size: 2.5rem;
+  margin-bottom: 0.5rem;
+  color: #1e40af;
+}
+
+.subtitle {
+  font-size: 1.2rem;
+  color: #666;
+}
+
+section {
+  margin-bottom: 3rem;
+}
+
+h2 {
+  font-size: 1.8rem;
+  margin-bottom: 1.5rem;
+  color: #1e40af;
+}
+
+h3 {
+  font-size: 1.3rem;
+  margin-bottom: 0.75rem;
+  color: #3b82f6;
+}
+
+/* Dimensions Grid */
+.dimensions-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.dimension-card {
+  background: #f0f9ff;
+  border: 2px solid #3b82f6;
+  border-radius: 8px;
+  padding: 1.5rem;
+}
+
+.dimension-card ul {
+  text-align: left;
+  margin-top: 0.5rem;
+}
+
+.warning-box {
+  background: #fef3c7;
+  border: 2px solid #f59e0b;
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+.warning-box h3 {
+  margin-top: 0;
+  color: #f59e0b;
+}
+
+/* Terminology */
+.terminology-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.term-card {
+  background: #f8fafc;
+  border: 2px solid #cbd5e1;
+  border-radius: 8px;
+  padding: 1.5rem;
+}
+
+.term-card ul {
+  text-align: left;
+}
+
+.term-card .problem {
+  margin-top: 1rem;
+  padding: 0.75rem;
+  background: #fee2e2;
+  border-left: 4px solid #ef4444;
+  font-weight: 500;
+}
+
+.examples {
+  background: #f1f5f9;
+  border-radius: 8px;
+  padding: 1.5rem;
+}
+
+.examples ul {
+  text-align: left;
+  margin-top: 0.5rem;
+}
+
+/* Monitor Selector */
+.monitor-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.monitor-chip {
+  background: white;
+  border: 2px solid #cbd5e1;
+  border-radius: 6px;
+  padding: 0.75rem 1rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.25rem;
+}
+
+.monitor-chip:hover {
+  border-color: #3b82f6;
+  background: #f0f9ff;
+}
+
+.monitor-chip.selected {
+  background: #3b82f6;
+  border-color: #1e40af;
+  color: white;
+}
+
+.chip-details {
+  font-size: 0.85rem;
+  opacity: 0.8;
+}
+
+/* Visualization */
+.monitor-canvas {
+  margin-top: 1.5rem;
+  padding: 1rem;
+  background: white;
+  border-radius: 8px;
+  overflow-x: auto;
+}
+
+/* Key Insights */
+.insight-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+.insight-card {
+  background: #f0fdf4;
+  border: 2px solid #22c55e;
+  border-radius: 8px;
+  padding: 1.5rem;
+}
+
+.insight-card h3 {
+  color: #16a34a;
+  margin-top: 0;
+}
+
+.insight-card ul {
+  text-align: left;
+  margin-top: 0.5rem;
+}
+
+/* Footer */
+footer {
+  text-align: center;
+  margin-top: 4rem;
+  padding-top: 2rem;
+  border-top: 2px solid #e5e7eb;
+  color: #666;
+}
+
+footer a {
+  color: #3b82f6;
+  text-decoration: none;
+}
+
+footer a:hover {
+  text-decoration: underline;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .app {
+    padding: 1rem;
+  }
+
+  header h1 {
+    font-size: 2rem;
+  }
+
+  .subtitle {
+    font-size: 1rem;
+  }
+
+  h2 {
+    font-size: 1.5rem;
+  }
+
+  .dimensions-grid,
+  .terminology-grid,
+  .insight-grid {
+    grid-template-columns: 1fr;
+  }
+}
