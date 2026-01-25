@@ -40,6 +40,13 @@ function App() {
   ])
   const [viewMode, setViewMode] = useState<ViewMode>('height')
 
+  // Pan and zoom state
+  const [zoom, setZoom] = useState(1)
+  const [panX, setPanX] = useState(0)
+  const [panY, setPanY] = useState(0)
+  const [isDragging, setIsDragging] = useState(false)
+  const [dragStart, setDragStart] = useState({ x: 0, y: 0 })
+
   const toggleMonitor = (monitor: Monitor) => {
     setSelectedMonitors(prev => {
       const exists = prev.find(m => m.name === monitor.name)
@@ -51,9 +58,45 @@ function App() {
     })
   }
 
+  // Zoom handler
+  const handleWheel = (e: React.WheelEvent) => {
+    e.preventDefault()
+    const delta = e.deltaY > 0 ? 0.9 : 1.1
+    setZoom(prev => Math.max(0.5, Math.min(5, prev * delta)))
+  }
+
+  // Pan handlers
+  const handleMouseDown = (e: React.MouseEvent) => {
+    setIsDragging(true)
+    setDragStart({ x: e.clientX - panX, y: e.clientY - panY })
+  }
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isDragging) return
+    setPanX(e.clientX - dragStart.x)
+    setPanY(e.clientY - dragStart.y)
+  }
+
+  const handleMouseUp = () => {
+    setIsDragging(false)
+  }
+
+  const resetView = () => {
+    setZoom(1)
+    setPanX(0)
+    setPanY(0)
+  }
+
   // Scale for visualization - use width for scaling
   const maxWidth = Math.max(...monitors.map(m => m.width))
   const scale = 600 / maxWidth // pixels per inch
+
+  // Calculate viewBox based on zoom and pan
+  const baseViewBox = { x: 0, y: 0, width: 700, height: 400 }
+  const viewBoxWidth = baseViewBox.width / zoom
+  const viewBoxHeight = baseViewBox.height / zoom
+  const viewBoxX = baseViewBox.x - (panX / zoom)
+  const viewBoxY = baseViewBox.y - (panY / zoom)
 
   return (
     <div className="app">
@@ -183,12 +226,24 @@ function App() {
         </section>
 
         <section className="visualization">
-          <div className="monitor-canvas">
+          <div className="zoom-controls">
+            <p>Zoom: {zoom.toFixed(1)}x | Pan and zoom with mouse</p>
+            <button onClick={resetView} className="reset-btn">Reset View</button>
+          </div>
+          <div
+            className="monitor-canvas"
+            onMouseDown={handleMouseDown}
+            onMouseMove={handleMouseMove}
+            onMouseUp={handleMouseUp}
+            onMouseLeave={handleMouseUp}
+            style={{ cursor: isDragging ? 'grabbing' : 'grab' }}
+          >
             <svg
               width="100%"
               height="400"
-              viewBox="0 0 700 400"
+              viewBox={`${viewBoxX} ${viewBoxY} ${viewBoxWidth} ${viewBoxHeight}`}
               style={{ border: '1px solid #ccc', background: '#f5f5f5' }}
+              onWheel={handleWheel}
             >
               {/* Dynamic grouping based on view mode */}
               {(() => {
