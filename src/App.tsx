@@ -30,12 +30,15 @@ const monitors: Monitor[] = [
   { diagonal: 57, aspectRatio: '32:9', resolution: '2160p', width: 54.9, height: 15.4, resolutionX: 7680, resolutionY: 2160, name: '57" Super-wide' },
 ]
 
+type ViewMode = 'height' | 'resolution' | 'overlay'
+
 function App() {
   const [selectedMonitors, setSelectedMonitors] = useState<Monitor[]>([
     monitors[0], // 27" standard
     monitors[3], // 34" ultrawide
     monitors[5], // 49" super-wide
   ])
+  const [viewMode, setViewMode] = useState<ViewMode>('height')
 
   const toggleMonitor = (monitor: Monitor) => {
     setSelectedMonitors(prev => {
@@ -136,7 +139,32 @@ function App() {
 
         <section className="monitor-selector">
           <h2>Visual Comparison</h2>
-          <p>Select monitors to compare (same height = same row):</p>
+
+          <div className="view-mode-selector">
+            <p>Group by:</p>
+            <div className="view-mode-buttons">
+              <button
+                className={`view-mode-btn ${viewMode === 'height' ? 'active' : ''}`}
+                onClick={() => setViewMode('height')}
+              >
+                Height Class
+              </button>
+              <button
+                className={`view-mode-btn ${viewMode === 'resolution' ? 'active' : ''}`}
+                onClick={() => setViewMode('resolution')}
+              >
+                Resolution
+              </button>
+              <button
+                className={`view-mode-btn ${viewMode === 'overlay' ? 'active' : ''}`}
+                onClick={() => setViewMode('overlay')}
+              >
+                Overlay (Stacked)
+              </button>
+            </div>
+          </div>
+
+          <p>Select monitors to compare:</p>
 
           <div className="monitor-chips">
             {monitors.map(monitor => (
@@ -162,74 +190,121 @@ function App() {
               viewBox="0 0 700 400"
               style={{ border: '1px solid #ccc', background: '#f5f5f5' }}
             >
-              {/* Group by height */}
-              {[
-                { heightClass: '~13" tall', monitors: selectedMonitors.filter(m => m.height < 14), y: 50 },
-                { heightClass: '~16" tall', monitors: selectedMonitors.filter(m => m.height >= 14 && m.height < 20), y: 200 },
-                { heightClass: '~21" tall', monitors: selectedMonitors.filter(m => m.height >= 20), y: 300 },
-              ].map(group => {
-                if (group.monitors.length === 0) return null
+              {/* Dynamic grouping based on view mode */}
+              {(() => {
+                if (viewMode === 'overlay') {
+                  // Overlay mode: stack all monitors from same origin
+                  const baseX = 50
+                  const baseY = 50
+                  return selectedMonitors.map((monitor, index) => {
+                    const rectWidth = monitor.width * scale
+                    const rectHeight = monitor.height * scale
+                    return (
+                      <g key={monitor.name} style={{ transition: 'all 0.5s ease' }}>
+                        <rect
+                          x={baseX}
+                          y={baseY}
+                          width={rectWidth}
+                          height={rectHeight}
+                          fill={monitor.aspectRatio === '16:9' ? '#3b82f6' : monitor.aspectRatio === '21:9' ? '#8b5cf6' : '#ec4899'}
+                          stroke="#1e40af"
+                          strokeWidth="2"
+                          opacity="0.4"
+                          style={{ transition: 'all 0.5s ease' }}
+                        />
+                        <text
+                          x={baseX + rectWidth / 2}
+                          y={baseY + rectHeight / 2 + (index * 20) - 10}
+                          textAnchor="middle"
+                          fontSize="14"
+                          fontWeight="bold"
+                          fill="white"
+                          style={{ transition: 'all 0.5s ease' }}
+                        >
+                          {monitor.name}
+                        </text>
+                      </g>
+                    )
+                  })
+                }
 
-                let xOffset = 20
-                return (
-                  <g key={group.heightClass}>
-                    {/* Height class label */}
-                    <text x="10" y={group.y + 10} fontSize="12" fill="#666">
-                      {group.heightClass}
-                    </text>
+                // Height or Resolution grouping
+                const groups = viewMode === 'height'
+                  ? [
+                      { label: '~13" tall', monitors: selectedMonitors.filter(m => m.height < 14), y: 50 },
+                      { label: '~16" tall', monitors: selectedMonitors.filter(m => m.height >= 14 && m.height < 20), y: 200 },
+                      { label: '~21" tall', monitors: selectedMonitors.filter(m => m.height >= 20), y: 300 },
+                    ]
+                  : [
+                      { label: '1440p (2K)', monitors: selectedMonitors.filter(m => m.resolution === '1440p'), y: 50 },
+                      { label: '2160p (4K)', monitors: selectedMonitors.filter(m => m.resolution === '2160p'), y: 200 },
+                    ]
 
-                    {/* Monitors in this height class */}
-                    {group.monitors.map(monitor => {
-                      const rectWidth = monitor.width * scale
-                      const rectHeight = monitor.height * scale
-                      const rect = (
-                        <g key={monitor.name}>
-                          <rect
-                            x={xOffset}
-                            y={group.y}
-                            width={rectWidth}
-                            height={rectHeight}
-                            fill={monitor.aspectRatio === '16:9' ? '#3b82f6' : monitor.aspectRatio === '21:9' ? '#8b5cf6' : '#ec4899'}
-                            stroke="#1e40af"
-                            strokeWidth="2"
-                            opacity="0.7"
-                          />
-                          <text
-                            x={xOffset + rectWidth / 2}
-                            y={group.y + rectHeight / 2 - 10}
-                            textAnchor="middle"
-                            fontSize="14"
-                            fontWeight="bold"
-                            fill="white"
-                          >
-                            {monitor.name}
-                          </text>
-                          <text
-                            x={xOffset + rectWidth / 2}
-                            y={group.y + rectHeight / 2 + 10}
-                            textAnchor="middle"
-                            fontSize="12"
-                            fill="white"
-                          >
-                            {monitor.resolutionX}×{monitor.resolutionY}
-                          </text>
-                          <text
-                            x={xOffset + rectWidth / 2}
-                            y={group.y + rectHeight / 2 + 25}
-                            textAnchor="middle"
-                            fontSize="11"
-                            fill="white"
-                          >
-                            {monitor.width.toFixed(1)}" × {monitor.height.toFixed(1)}"
-                          </text>
-                        </g>
-                      )
-                      xOffset += rectWidth + 20
-                      return rect
-                    })}
-                  </g>
-                )
-              })}
+                return groups.map(group => {
+                  if (group.monitors.length === 0) return null
+
+                  let xOffset = 20
+                  return (
+                    <g key={group.label}>
+                      {/* Group label */}
+                      <text x="10" y={group.y + 10} fontSize="12" fill="#666">
+                        {group.label}
+                      </text>
+
+                      {/* Monitors in this group */}
+                      {group.monitors.map(monitor => {
+                        const rectWidth = monitor.width * scale
+                        const rectHeight = monitor.height * scale
+                        const rect = (
+                          <g key={monitor.name}>
+                            <rect
+                              x={xOffset}
+                              y={group.y}
+                              width={rectWidth}
+                              height={rectHeight}
+                              fill={monitor.aspectRatio === '16:9' ? '#3b82f6' : monitor.aspectRatio === '21:9' ? '#8b5cf6' : '#ec4899'}
+                              stroke="#1e40af"
+                              strokeWidth="2"
+                              opacity="0.7"
+                              style={{ transition: 'all 0.5s ease' }}
+                            />
+                            <text
+                              x={xOffset + rectWidth / 2}
+                              y={group.y + rectHeight / 2 - 10}
+                              textAnchor="middle"
+                              fontSize="14"
+                              fontWeight="bold"
+                              fill="white"
+                            >
+                              {monitor.name}
+                            </text>
+                            <text
+                              x={xOffset + rectWidth / 2}
+                              y={group.y + rectHeight / 2 + 10}
+                              textAnchor="middle"
+                              fontSize="12"
+                              fill="white"
+                            >
+                              {monitor.resolutionX}×{monitor.resolutionY}
+                            </text>
+                            <text
+                              x={xOffset + rectWidth / 2}
+                              y={group.y + rectHeight / 2 + 25}
+                              textAnchor="middle"
+                              fontSize="11"
+                              fill="white"
+                            >
+                              {monitor.width.toFixed(1)}" × {monitor.height.toFixed(1)}"
+                            </text>
+                          </g>
+                        )
+                        xOffset += rectWidth + 20
+                        return rect
+                      })}
+                    </g>
+                  )
+                })
+              })()}
 
               {/* Legend */}
               <g transform="translate(10, 380)">

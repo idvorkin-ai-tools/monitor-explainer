@@ -108,6 +108,48 @@ h3 {
   margin-top: 0.5rem;
 }
 
+/* View Mode Selector */
+.view-mode-selector {
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  background: #f8fafc;
+  border-radius: 8px;
+  border: 2px solid #cbd5e1;
+}
+
+.view-mode-selector p {
+  margin: 0 0 0.75rem 0;
+  font-weight: 600;
+  color: #475569;
+}
+
+.view-mode-buttons {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.view-mode-btn {
+  background: white;
+  border: 2px solid #cbd5e1;
+  border-radius: 6px;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.view-mode-btn:hover {
+  border-color: #3b82f6;
+  background: #f0f9ff;
+}
+
+.view-mode-btn.active {
+  background: #3b82f6;
+  border-color: #1e40af;
+  color: white;
+}
+
 /* Monitor Selector */
 .monitor-chips {
   display: flex;
