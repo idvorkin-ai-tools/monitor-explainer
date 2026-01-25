@@ -363,31 +363,60 @@ function App() {
                     const finalX = baseX + position.x
                     const finalY = baseY + position.y
                     return (
-                      <g
-                        key={monitorId}
-                        style={{ cursor: 'move', transition: draggingMonitor === monitorId ? 'none' : 'all 0.5s ease' }}
-                        onMouseDown={(e) => handleMonitorMouseDown(e, monitorId)}
-                      >
-                        <rect
-                          x={finalX}
-                          y={finalY}
-                          width={rectWidth}
-                          height={rectHeight}
-                          fill={monitor.aspectRatio === '16:9' ? '#3b82f6' : monitor.aspectRatio === '21:9' ? '#8b5cf6' : '#ec4899'}
-                          stroke="#1e40af"
-                          strokeWidth="2"
-                          opacity="0.4"
-                        />
-                        <text
-                          x={finalX + rectWidth / 2}
-                          y={finalY + rectHeight / 2}
-                          textAnchor="middle"
-                          fontSize="14"
-                          fontWeight="bold"
-                          fill="white"
+                      <g key={monitorId}>
+                        <g
+                          style={{ cursor: 'move', transition: draggingMonitor === monitorId ? 'none' : 'all 0.5s ease' }}
+                          onMouseDown={(e) => handleMonitorMouseDown(e, monitorId)}
                         >
-                          {monitor.name}
-                        </text>
+                          <rect
+                            x={finalX}
+                            y={finalY}
+                            width={rectWidth}
+                            height={rectHeight}
+                            fill={monitor.aspectRatio === '16:9' ? '#3b82f6' : monitor.aspectRatio === '21:9' ? '#8b5cf6' : '#ec4899'}
+                            stroke="#1e40af"
+                            strokeWidth="2"
+                            opacity="0.4"
+                          />
+                          <text
+                            x={finalX + rectWidth / 2}
+                            y={finalY + rectHeight / 2}
+                            textAnchor="middle"
+                            fontSize="14"
+                            fontWeight="bold"
+                            fill="white"
+                          >
+                            {monitor.name}
+                          </text>
+                        </g>
+                        {/* Close button */}
+                        <g
+                          style={{ cursor: 'pointer' }}
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            removeMonitor(index)
+                          }}
+                        >
+                          <circle
+                            cx={finalX + rectWidth - 10}
+                            cy={finalY + 10}
+                            r="8"
+                            fill="#ef4444"
+                            stroke="white"
+                            strokeWidth="1"
+                          />
+                          <text
+                            x={finalX + rectWidth - 10}
+                            y={finalY + 10}
+                            textAnchor="middle"
+                            dominantBaseline="central"
+                            fontSize="12"
+                            fontWeight="bold"
+                            fill="white"
+                          >
+                            ×
+                          </text>
+                        </g>
                       </g>
                     )
                   })
@@ -427,49 +456,78 @@ function App() {
                         const finalX = xOffset + position.x
                         const finalY = group.y + position.y
                         const rect = (
-                          <g
-                            key={monitorId}
-                            style={{ cursor: 'move', transition: draggingMonitor === monitorId ? 'none' : 'all 0.5s ease' }}
-                            onMouseDown={(e) => handleMonitorMouseDown(e, monitorId)}
-                          >
-                            <rect
-                              x={finalX}
-                              y={finalY}
-                              width={rectWidth}
-                              height={rectHeight}
-                              fill={monitor.aspectRatio === '16:9' ? '#3b82f6' : monitor.aspectRatio === '21:9' ? '#8b5cf6' : '#ec4899'}
-                              stroke="#1e40af"
-                              strokeWidth="2"
-                              opacity="0.7"
-                            />
-                            <text
-                              x={finalX + rectWidth / 2}
-                              y={finalY + rectHeight / 2 - 10}
-                              textAnchor="middle"
-                              fontSize="14"
-                              fontWeight="bold"
-                              fill="white"
+                          <g key={monitorId}>
+                            <g
+                              style={{ cursor: 'move', transition: draggingMonitor === monitorId ? 'none' : 'all 0.5s ease' }}
+                              onMouseDown={(e) => handleMonitorMouseDown(e, monitorId)}
                             >
-                              {monitor.name}
-                            </text>
-                            <text
-                              x={finalX + rectWidth / 2}
-                              y={finalY + rectHeight / 2 + 10}
-                              textAnchor="middle"
-                              fontSize="12"
-                              fill="white"
+                              <rect
+                                x={finalX}
+                                y={finalY}
+                                width={rectWidth}
+                                height={rectHeight}
+                                fill={monitor.aspectRatio === '16:9' ? '#3b82f6' : monitor.aspectRatio === '21:9' ? '#8b5cf6' : '#ec4899'}
+                                stroke="#1e40af"
+                                strokeWidth="2"
+                                opacity="0.7"
+                              />
+                              <text
+                                x={finalX + rectWidth / 2}
+                                y={finalY + rectHeight / 2 - 10}
+                                textAnchor="middle"
+                                fontSize="14"
+                                fontWeight="bold"
+                                fill="white"
+                              >
+                                {monitor.name}
+                              </text>
+                              <text
+                                x={finalX + rectWidth / 2}
+                                y={finalY + rectHeight / 2 + 10}
+                                textAnchor="middle"
+                                fontSize="12"
+                                fill="white"
+                              >
+                                {monitor.resolutionX}×{monitor.resolutionY}
+                              </text>
+                              <text
+                                x={finalX + rectWidth / 2}
+                                y={finalY + rectHeight / 2 + 25}
+                                textAnchor="middle"
+                                fontSize="11"
+                                fill="white"
+                              >
+                                {monitor.width.toFixed(1)}" × {monitor.height.toFixed(1)}"
+                              </text>
+                            </g>
+                            {/* Close button */}
+                            <g
+                              style={{ cursor: 'pointer' }}
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                removeMonitor(globalIndex)
+                              }}
                             >
-                              {monitor.resolutionX}×{monitor.resolutionY}
-                            </text>
-                            <text
-                              x={finalX + rectWidth / 2}
-                              y={finalY + rectHeight / 2 + 25}
-                              textAnchor="middle"
-                              fontSize="11"
-                              fill="white"
-                            >
-                              {monitor.width.toFixed(1)}" × {monitor.height.toFixed(1)}"
-                            </text>
+                              <circle
+                                cx={finalX + rectWidth - 10}
+                                cy={finalY + 10}
+                                r="8"
+                                fill="#ef4444"
+                                stroke="white"
+                                strokeWidth="1"
+                              />
+                              <text
+                                x={finalX + rectWidth - 10}
+                                y={finalY + 10}
+                                textAnchor="middle"
+                                dominantBaseline="central"
+                                fontSize="12"
+                                fontWeight="bold"
+                                fill="white"
+                              >
+                                ×
+                              </text>
+                            </g>
                           </g>
                         )
                         xOffset += rectWidth + 20
