@@ -203,11 +203,33 @@ function App() {
     <div className="app">
       <header>
         <h1>Monitor Dimension Explainer</h1>
-        <p className="subtitle">Understanding aspect ratios, physical size, and resolution</p>
+        <p className="subtitle">Cut through the marketing gobbledygook</p>
       </header>
 
       <main>
-        <section className="explainer">
+        <section className="intro">
+          <p className="intro-text">
+            Buying monitors is super confusing because of everyone's diagonal size (27", 34", 49")
+            and some number followed by 1080p, 4K, or HD. But this is all <strong>marketing gobbledygook</strong>.
+            What we really need to understand are three independent dimensions:
+          </p>
+
+          <nav className="toc">
+            <h3>Quick Navigation</h3>
+            <ul>
+              <li><a href="#three-dimensions">The Three Dimensions</a></li>
+              <li><a href="#igor-setup">Igor's Setup</a></li>
+              <li><a href="#visual-comparison">Visual Comparison</a></li>
+              <li><a href="#diagonal-confusion">Why Diagonal Measurements?</a></li>
+              <li><a href="#curved-monitors">Curved Monitors</a></li>
+              <li><a href="#pixel-density">Pixel Density (PPI)</a></li>
+              <li><a href="#panel-type">Panel Type (IPS/VA/TN)</a></li>
+              <li><a href="#p-vs-k">The "p" vs "K" Confusion</a></li>
+            </ul>
+          </nav>
+        </section>
+
+        <section className="explainer" id="three-dimensions">
           <h2>The Three Dimensions</h2>
           <div className="dimensions-grid">
             <div className="dimension-card">
@@ -245,47 +267,142 @@ function App() {
           </div>
         </section>
 
-        <section className="terminology">
-          <h2>The "p" vs "K" Confusion</h2>
-          <div className="terminology-grid">
-            <div className="term-card">
-              <h3>"p" notation</h3>
-              <p>Measures <strong>vertical</strong> pixels (height)</p>
-              <ul>
-                <li>1080p = 1080 pixels tall</li>
-                <li>1440p = 1440 pixels tall</li>
-                <li>2160p = 2160 pixels tall</li>
-              </ul>
-              <p className="problem">Problem: Doesn't tell you width! Width depends on aspect ratio.</p>
+        <section className="igor-monitors" id="igor-setup">
+          <h2>Igor's Setup</h2>
+          <div className="igor-setup-grid">
+            <div className="igor-monitor-card">
+              <h3>Work: 32" 4K Standard</h3>
+              <p>3840×2160 (16:9)</p>
+              <button
+                className="add-monitor-btn"
+                onClick={() => {
+                  const monitor = monitors.find(m => m.name === '32" Standard')
+                  if (monitor) toggleMonitor(monitor)
+                }}
+              >
+                Add to Comparison
+              </button>
             </div>
 
-            <div className="term-card">
-              <h3>"K" notation</h3>
-              <p>Measures <strong>horizontal</strong> pixels (width)</p>
-              <ul>
-                <li>2K ≈ 2560 pixels wide</li>
-                <li>4K ≈ 3840 pixels wide (for 16:9)</li>
-                <li>4K ≈ 5120 pixels wide (for 21:9)</li>
-              </ul>
+            <div className="igor-monitor-card">
+              <h3>Home: 43" 4K Standard</h3>
+              <p>3840×2160 (16:9) - Same pixels as 32", larger</p>
+              <button
+                className="add-monitor-btn"
+                onClick={() => {
+                  const monitor = monitors.find(m => m.name === '43" Standard')
+                  if (monitor) toggleMonitor(monitor)
+                }}
+              >
+                Add to Comparison
+              </button>
             </div>
-          </div>
 
-          <div className="examples">
-            <h3>Examples:</h3>
-            <ul>
-              <li><strong>1440p at 16:9</strong> = 2560×1440 (standard monitor)</li>
-              <li><strong>1440p at 21:9</strong> = 3440×1440 (ultrawide monitor)</li>
-              <li><strong>2160p at 16:9</strong> = 3840×2160 (standard 4K)</li>
-              <li><strong>2160p at 21:9</strong> = 5120×2160 (ultrawide 4K)</li>
-            </ul>
+            <div className="igor-monitor-card">
+              <h3>Home: 40" Samsung Odyssey G7</h3>
+              <p>5120×2160 (21:9) - Ultrawide</p>
+              <button
+                className="add-monitor-btn"
+                onClick={() => {
+                  const monitor = monitors.find(m => m.name === '40" Ultrawide')
+                  if (monitor) toggleMonitor(monitor)
+                }}
+              >
+                Add to Comparison
+              </button>
+            </div>
           </div>
         </section>
 
-        <section className="monitor-selector">
+        <section className="monitor-selector" id="visual-comparison">
           <h2>Visual Comparison</h2>
 
+          <p>Select monitors to compare (click to add, can add multiple of same model):</p>
+
+          <div className="monitor-catalog-grid">
+            <div className="catalog-header">
+              <div className="size-label">Height</div>
+              <div className="aspect-label">Standard (16:9)</div>
+              <div className="aspect-label">Ultrawide (21:9)</div>
+              <div className="aspect-label">Super-wide (32:9)</div>
+            </div>
+
+            {/* ~13" tall row */}
+            <div className="catalog-row">
+              <div className="size-label">~13" tall</div>
+              <div className="catalog-cell">
+                {monitors.filter(m => m.height >= 13 && m.height < 15 && m.aspectRatio === '16:9').map(monitor => (
+                  <button key={monitor.name} className="monitor-chip" onClick={() => toggleMonitor(monitor)}>
+                    <div>{monitor.name}</div>
+                    <span className="chip-details">{monitor.resolutionX}×{monitor.resolutionY}</span>
+                  </button>
+                ))}
+              </div>
+              <div className="catalog-cell">
+                {monitors.filter(m => m.height >= 13 && m.height < 15 && m.aspectRatio === '21:9').map(monitor => (
+                  <button key={monitor.name} className="monitor-chip" onClick={() => toggleMonitor(monitor)}>
+                    <div>{monitor.name}</div>
+                    <span className="chip-details">{monitor.resolutionX}×{monitor.resolutionY}</span>
+                  </button>
+                ))}
+              </div>
+              <div className="catalog-cell">
+                {monitors.filter(m => m.height >= 13 && m.height < 15 && m.aspectRatio === '32:9').map(monitor => (
+                  <button key={monitor.name} className="monitor-chip" onClick={() => toggleMonitor(monitor)}>
+                    <div>{monitor.name}</div>
+                    <span className="chip-details">{monitor.resolutionX}×{monitor.resolutionY}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* ~16" tall row */}
+            <div className="catalog-row">
+              <div className="size-label">~16" tall</div>
+              <div className="catalog-cell">
+                {monitors.filter(m => m.height >= 15 && m.height < 20 && m.aspectRatio === '16:9').map(monitor => (
+                  <button key={monitor.name} className="monitor-chip" onClick={() => toggleMonitor(monitor)}>
+                    <div>{monitor.name}</div>
+                    <span className="chip-details">{monitor.resolutionX}×{monitor.resolutionY}</span>
+                  </button>
+                ))}
+              </div>
+              <div className="catalog-cell">
+                {monitors.filter(m => m.height >= 15 && m.height < 20 && m.aspectRatio === '21:9').map(monitor => (
+                  <button key={monitor.name} className="monitor-chip" onClick={() => toggleMonitor(monitor)}>
+                    <div>{monitor.name}</div>
+                    <span className="chip-details">{monitor.resolutionX}×{monitor.resolutionY}</span>
+                  </button>
+                ))}
+              </div>
+              <div className="catalog-cell">
+                {monitors.filter(m => m.height >= 15 && m.height < 20 && m.aspectRatio === '32:9').map(monitor => (
+                  <button key={monitor.name} className="monitor-chip" onClick={() => toggleMonitor(monitor)}>
+                    <div>{monitor.name}</div>
+                    <span className="chip-details">{monitor.resolutionX}×{monitor.resolutionY}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* ~21" tall row */}
+            <div className="catalog-row">
+              <div className="size-label">~21" tall</div>
+              <div className="catalog-cell">
+                {monitors.filter(m => m.height >= 20 && m.aspectRatio === '16:9').map(monitor => (
+                  <button key={monitor.name} className="monitor-chip" onClick={() => toggleMonitor(monitor)}>
+                    <div>{monitor.name}</div>
+                    <span className="chip-details">{monitor.resolutionX}×{monitor.resolutionY}</span>
+                  </button>
+                ))}
+              </div>
+              <div className="catalog-cell empty">—</div>
+              <div className="catalog-cell empty">—</div>
+            </div>
+          </div>
+
           <div className="view-mode-selector">
-            <p>Group by:</p>
+            <p>Canvas view mode:</p>
             <div className="view-mode-buttons">
               <button
                 className={`view-mode-btn ${viewMode === 'height' ? 'active' : ''}`}
@@ -305,64 +422,6 @@ function App() {
               >
                 Overlay (Stacked)
               </button>
-            </div>
-          </div>
-
-          <p>Select monitors to compare (click to add, can add multiple of same model):</p>
-
-          <div className="monitor-groups">
-            <div className="monitor-group">
-              <h4>Standard (16:9)</h4>
-              <div className="monitor-chips">
-                {monitors.filter(m => m.aspectRatio === '16:9').map(monitor => (
-                  <button
-                    key={monitor.name}
-                    className="monitor-chip"
-                    onClick={() => toggleMonitor(monitor)}
-                  >
-                    {monitor.name}
-                    <span className="chip-details">
-                      {monitor.resolutionX}×{monitor.resolutionY}
-                    </span>
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div className="monitor-group">
-              <h4>Ultrawide (21:9)</h4>
-              <div className="monitor-chips">
-                {monitors.filter(m => m.aspectRatio === '21:9').map(monitor => (
-                  <button
-                    key={monitor.name}
-                    className="monitor-chip"
-                    onClick={() => toggleMonitor(monitor)}
-                  >
-                    {monitor.name}
-                    <span className="chip-details">
-                      {monitor.resolutionX}×{monitor.resolutionY}
-                    </span>
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div className="monitor-group">
-              <h4>Super-wide (32:9)</h4>
-              <div className="monitor-chips">
-                {monitors.filter(m => m.aspectRatio === '32:9').map(monitor => (
-                  <button
-                    key={monitor.name}
-                    className="monitor-chip"
-                    onClick={() => toggleMonitor(monitor)}
-                  >
-                    {monitor.name}
-                    <span className="chip-details">
-                      {monitor.resolutionX}×{monitor.resolutionY}
-                    </span>
-                  </button>
-                ))}
-              </div>
             </div>
           </div>
 
@@ -713,6 +772,176 @@ function App() {
                 <li>240 Hz - Hard to tell from 120 Hz</li>
               </ul>
             </div>
+          </div>
+        </section>
+
+        <section className="diagonal-confusion" id="diagonal-confusion">
+          <h2>Why Are Monitors Measured Diagonally?</h2>
+
+          <div className="warning-box">
+            <h3>⚠️ Diagonal measurement hides the real story!</h3>
+            <p>Monitors are marketed by diagonal size (27", 34", 49"), but <strong>physical height</strong> is what actually determines viewing area. A 49" super-wide and a 27" standard monitor are both ~13" tall - the 49" is just stretched horizontally!</p>
+          </div>
+
+          <div className="examples">
+            <h3>The confusion this creates:</h3>
+            <ul>
+              <li>A <strong>49" super-wide</strong> (32:9) is ~13" tall - same height as a <strong>27" standard</strong> (16:9)</li>
+              <li>A <strong>34" ultrawide</strong> (21:9) is ~13" tall - also same height class!</li>
+              <li>A <strong>43" standard</strong> (16:9) is ~21" tall - much taller than you'd expect from the diagonal</li>
+            </ul>
+            <p><strong>Why diagonal?</strong> Historical artifact from CRT TV marketing. It made screens sound bigger and allowed comparing across aspect ratios with one number. But it obscures what matters: actual viewing height!</p>
+          </div>
+        </section>
+
+        <section className="curved-monitors" id="curved-monitors">
+          <h2>Curved Monitors</h2>
+
+          <div className="dimension-card">
+            <h3>Curvature Rating (e.g., 1000R, 1800R)</h3>
+            <p>The "R" number indicates the radius of the curve in millimeters</p>
+            <ul>
+              <li><strong>1000R</strong> - Aggressive curve (1 meter radius) - wraps around your vision</li>
+              <li><strong>1500R</strong> - Moderate curve (1.5 meter radius) - good for ultrawide</li>
+              <li><strong>1800R</strong> - Gentle curve (1.8 meter radius) - subtle immersion</li>
+            </ul>
+            <p><strong>Lower number = tighter curve.</strong> More curve helps with ultrawide/super-wide monitors by keeping edges equidistant from your eyes.</p>
+          </div>
+
+          <div className="warning-box">
+            <h3>💡 When does curve matter?</h3>
+            <p>Curved screens are most beneficial on ultrawide (21:9) and super-wide (32:9) monitors. On standard 16:9 monitors, the curve is less noticeable and may not add much value. The wider the monitor, the more a curve helps maintain consistent viewing distance across the entire screen.</p>
+          </div>
+        </section>
+
+        <section className="pixel-density" id="pixel-density">
+          <h2>Pixel Density (PPI)</h2>
+
+          <div className="dimension-card">
+            <h3>What is PPI?</h3>
+            <p><strong>Pixels Per Inch</strong> - How tightly packed the pixels are</p>
+            <ul>
+              <li><strong>Higher PPI</strong> = Sharper text and images</li>
+              <li><strong>Lower PPI</strong> = You can see individual pixels (looks fuzzy)</li>
+              <li><strong>Sweet spot</strong>: 100-140 PPI for desktop monitors</li>
+            </ul>
+          </div>
+
+          <div className="examples">
+            <h3>Why PPI matters:</h3>
+            <ul>
+              <li>A <strong>27" at 1440p</strong> = ~109 PPI (sharp, comfortable)</li>
+              <li>A <strong>32" at 1440p</strong> = ~92 PPI (noticeably less sharp)</li>
+              <li>A <strong>32" at 2160p</strong> = ~138 PPI (very sharp)</li>
+              <li>A <strong>43" at 2160p</strong> = ~103 PPI (same pixels spread over larger area)</li>
+            </ul>
+            <p><strong>The trade-off:</strong> Bigger physical size at the same resolution means lower PPI. You need more pixels (higher resolution) to maintain sharpness on larger monitors.</p>
+          </div>
+
+          <div className="warning-box">
+            <h3>⚠️ This is why size ≠ better!</h3>
+            <p>A 43" 4K monitor has the exact same pixel count as a 32" 4K monitor - just spread over a larger area. Text and images will be the same size in inches, but less sharp on the 43" because the pixels are physically bigger.</p>
+          </div>
+        </section>
+
+        <section className="panel-type" id="panel-type">
+          <h2>Panel Type (IPS vs VA vs TN)</h2>
+
+          <div className="terminology-grid">
+            <div className="term-card">
+              <h3>IPS (In-Plane Switching)</h3>
+              <p><strong>Best for:</strong> Color accuracy and viewing angles</p>
+              <ul>
+                <li>✅ Excellent color reproduction</li>
+                <li>✅ Wide viewing angles (looks good from the side)</li>
+                <li>✅ Best for photo/video editing</li>
+                <li>❌ More expensive</li>
+                <li>❌ Slower response time (motion blur in fast games)</li>
+                <li>❌ Weaker contrast (blacks look grayish)</li>
+              </ul>
+            </div>
+
+            <div className="term-card">
+              <h3>VA (Vertical Alignment)</h3>
+              <p><strong>Best for:</strong> Contrast and deep blacks</p>
+              <ul>
+                <li>✅ Best contrast ratio (deep blacks)</li>
+                <li>✅ Good for dark room viewing</li>
+                <li>✅ Middle ground price</li>
+                <li>❌ Narrower viewing angles than IPS</li>
+                <li>❌ Color shifts when viewed from angles</li>
+                <li>❌ Slower pixel response (ghosting in games)</li>
+              </ul>
+            </div>
+
+            <div className="term-card">
+              <h3>TN (Twisted Nematic)</h3>
+              <p><strong>Best for:</strong> Competitive gaming (speed)</p>
+              <ul>
+                <li>✅ Fastest response time (1ms)</li>
+                <li>✅ High refresh rates (240Hz+)</li>
+                <li>✅ Cheapest option</li>
+                <li>❌ Poor viewing angles</li>
+                <li>❌ Washed out colors</li>
+                <li>❌ Not good for color work</li>
+              </ul>
+            </div>
+          </div>
+
+          <div className="examples">
+            <h3>Which should you choose?</h3>
+            <ul>
+              <li><strong>Photo/video editing, design work:</strong> IPS (color accuracy matters most)</li>
+              <li><strong>Movies, general use, dark room:</strong> VA (contrast and deep blacks)</li>
+              <li><strong>Competitive gaming (CS:GO, Valorant):</strong> TN (speed beats everything)</li>
+              <li><strong>General gaming, productivity:</strong> IPS (best all-around, modern IPS has decent response times)</li>
+            </ul>
+          </div>
+        </section>
+
+        <section className="terminology" id="p-vs-k">
+          <h2>The "p" vs "K" Confusion</h2>
+
+          <div className="warning-box">
+            <h3>⚠️ Neither tells you full dimensions!</h3>
+            <p>Both "p" and "K" notation are incomplete - that's why you get weird abbreviations like WQHD, UWQHD, QHD+, etc. You always need to know BOTH resolution AND aspect ratio to understand monitor dimensions.</p>
+          </div>
+
+          <div className="terminology-grid">
+            <div className="term-card">
+              <h3>"p" notation</h3>
+              <p>Measures <strong>vertical</strong> pixels (height only)</p>
+              <ul>
+                <li>1080p = 1080 pixels tall</li>
+                <li>1440p = 1440 pixels tall</li>
+                <li>2160p = 2160 pixels tall</li>
+              </ul>
+              <p className="problem">Problem: Doesn't tell you width! Width depends on aspect ratio.</p>
+            </div>
+
+            <div className="term-card">
+              <h3>"K" notation</h3>
+              <p>Measures <strong>horizontal</strong> pixels (width only)</p>
+              <ul>
+                <li>2K ≈ 2560 pixels wide (16:9)</li>
+                <li>4K ≈ 3840 pixels wide (16:9)</li>
+                <li>4K ≈ 5120 pixels wide (21:9)</li>
+              </ul>
+              <p className="problem">Problem: "4K" means different widths depending on aspect ratio!</p>
+            </div>
+          </div>
+
+          <div className="examples">
+            <h3>Why the weird abbreviations?</h3>
+            <p>Since neither "p" nor "K" is enough, the industry invented confusing acronyms:</p>
+            <ul>
+              <li><strong>QHD</strong> (Quad HD) = 2560×1440 (16:9) = 1440p</li>
+              <li><strong>WQHD</strong> (Wide QHD) = 3440×1440 (21:9) = 1440p ultrawide</li>
+              <li><strong>UWQHD</strong> (Ultra-Wide QHD) = 3440×1440 (21:9) - same as WQHD!</li>
+              <li><strong>UHD</strong> (Ultra HD) = 3840×2160 (16:9) = 4K = 2160p</li>
+              <li><strong>5K2K</strong> = 5120×2160 (21:9) = 2160p ultrawide</li>
+            </ul>
+            <p><strong>Bottom line:</strong> Just use the actual resolution (e.g., 3840×2160) to avoid confusion!</p>
           </div>
         </section>
       </main>
