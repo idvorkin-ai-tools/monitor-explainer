@@ -5,6 +5,10 @@ default:
 dev PORT="5174":
     npm run dev -- --port {{PORT}} --host
 
+# Run lint and build (used by CI)
+test: build
+    npm run lint
+
 # Build for production
 build:
     npm run build
