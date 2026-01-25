@@ -47,15 +47,20 @@ function App() {
   const [isDragging, setIsDragging] = useState(false)
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 })
 
+  // Monitor positions (for individual dragging)
+  const [monitorPositions, setMonitorPositions] = useState<Record<string, { x: number; y: number }>>({})
+  const [draggingMonitor, setDraggingMonitor] = useState<string | null>(null)
+  const [monitorDragStart, setMonitorDragStart] = useState({ x: 0, y: 0 })
+
   const toggleMonitor = (monitor: Monitor) => {
     setSelectedMonitors(prev => {
-      const exists = prev.find(m => m.name === monitor.name)
-      if (exists) {
-        return prev.filter(m => m.name !== monitor.name)
-      } else {
-        return [...prev, monitor]
-      }
+      // Always add monitor (allow duplicates)
+      return [...prev, monitor]
     })
+  }
+
+  const removeMonitor = (index: number) => {
+    setSelectedMonitors(prev => prev.filter((_, i) => i !== index))
   }
 
   // Zoom handler
@@ -85,6 +90,78 @@ function App() {
     setZoom(1)
     setPanX(0)
     setPanY(0)
+    setMonitorPositions({})
+  }
+
+  // Monitor drag handlers
+  const handleMonitorMouseDown = (e: React.MouseEvent, monitorId: string) => {
+    e.stopPropagation() // Prevent canvas pan
+    setDraggingMonitor(monitorId)
+    const svgRect = (e.currentTarget as SVGElement).ownerSVGElement?.getBoundingClientRect()
+    if (svgRect) {
+      setMonitorDragStart({ x: e.clientX, y: e.clientY })
+    }
+  }
+
+  const handleMonitorMouseMove = (e: React.MouseEvent) => {
+    if (!draggingMonitor) return
+
+    const deltaX = (e.clientX - monitorDragStart.x) / zoom
+    const deltaY = (e.clientY - monitorDragStart.y) / zoom
+
+    let newX = (monitorPositions[draggingMonitor]?.x || 0) + deltaX
+    let newY = (monitorPositions[draggingMonitor]?.y || 0) + deltaY
+
+    // Snapping logic - snap to other monitors within 10px threshold
+    const snapThreshold = 10
+    selectedMonitors.forEach((monitor, index) => {
+      const monitorId = `${monitor.name}-${index}`
+      if (monitorId === draggingMonitor) return
+
+      const otherPos = monitorPositions[monitorId] || { x: 0, y: 0 }
+      const draggedMonitor = selectedMonitors.find((_, i) => `${selectedMonitors[i].name}-${i}` === draggingMonitor)
+      if (!draggedMonitor) return
+
+      const otherWidth = monitor.width * scale
+      const otherHeight = monitor.height * scale
+      const draggedWidth = draggedMonitor.width * scale
+      const draggedHeight = draggedMonitor.height * scale
+
+      // Snap horizontal (right edge to left edge, or left edge to right edge)
+      if (Math.abs((newX + draggedWidth) - otherPos.x) < snapThreshold) {
+        newX = otherPos.x - draggedWidth
+      } else if (Math.abs(newX - (otherPos.x + otherWidth)) < snapThreshold) {
+        newX = otherPos.x + otherWidth
+      }
+
+      // Snap vertical (bottom edge to top edge, or top edge to bottom edge)
+      if (Math.abs((newY + draggedHeight) - otherPos.y) < snapThreshold) {
+        newY = otherPos.y - draggedHeight
+      } else if (Math.abs(newY - (otherPos.y + otherHeight)) < snapThreshold) {
+        newY = otherPos.y + otherHeight
+      }
+
+      // Snap to same top edge
+      if (Math.abs(newY - otherPos.y) < snapThreshold) {
+        newY = otherPos.y
+      }
+
+      // Snap to same left edge
+      if (Math.abs(newX - otherPos.x) < snapThreshold) {
+        newX = otherPos.x
+      }
+    })
+
+    setMonitorPositions(prev => ({
+      ...prev,
+      [draggingMonitor]: { x: newX, y: newY }
+    }))
+
+    setMonitorDragStart({ x: e.clientX, y: e.clientY })
+  }
+
+  const handleMonitorMouseUp = () => {
+    setDraggingMonitor(null)
   }
 
   // Scale for visualization - use width for scaling
@@ -207,13 +284,13 @@ function App() {
             </div>
           </div>
 
-          <p>Select monitors to compare:</p>
+          <p>Select monitors to compare (click to add, can add multiple of same model):</p>
 
           <div className="monitor-chips">
             {monitors.map(monitor => (
               <button
                 key={monitor.name}
-                className={`monitor-chip ${selectedMonitors.find(m => m.name === monitor.name) ? 'selected' : ''}`}
+                className="monitor-chip"
                 onClick={() => toggleMonitor(monitor)}
               >
                 {monitor.name}
@@ -223,20 +300,47 @@ function App() {
               </button>
             ))}
           </div>
+
+          {selectedMonitors.length > 0 && (
+            <div className="selected-monitors-list">
+              <p>Selected ({selectedMonitors.length}):</p>
+              <div className="selected-chips">
+                {selectedMonitors.map((monitor, index) => (
+                  <button
+                    key={`${monitor.name}-${index}`}
+                    className="selected-chip"
+                    onClick={() => removeMonitor(index)}
+                    title="Click to remove"
+                  >
+                    {monitor.name} ×
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
         </section>
 
         <section className="visualization">
           <div className="zoom-controls">
-            <p>Zoom: {zoom.toFixed(1)}x | Pan and zoom with mouse</p>
+            <p>Zoom: {zoom.toFixed(1)}x | Drag canvas to pan, drag monitors to arrange, scroll to zoom</p>
             <button onClick={resetView} className="reset-btn">Reset View</button>
           </div>
           <div
             className="monitor-canvas"
             onMouseDown={handleMouseDown}
-            onMouseMove={handleMouseMove}
-            onMouseUp={handleMouseUp}
-            onMouseLeave={handleMouseUp}
-            style={{ cursor: isDragging ? 'grabbing' : 'grab' }}
+            onMouseMove={(e) => {
+              handleMouseMove(e)
+              handleMonitorMouseMove(e)
+            }}
+            onMouseUp={() => {
+              handleMouseUp()
+              handleMonitorMouseUp()
+            }}
+            onMouseLeave={() => {
+              handleMouseUp()
+              handleMonitorMouseUp()
+            }}
+            style={{ cursor: isDragging ? 'grabbing' : draggingMonitor ? 'grabbing' : 'grab' }}
           >
             <svg
               width="100%"
@@ -252,29 +356,35 @@ function App() {
                   const baseX = 50
                   const baseY = 50
                   return selectedMonitors.map((monitor, index) => {
+                    const monitorId = `${monitor.name}-${index}`
                     const rectWidth = monitor.width * scale
                     const rectHeight = monitor.height * scale
+                    const position = monitorPositions[monitorId] || { x: 0, y: 0 }
+                    const finalX = baseX + position.x
+                    const finalY = baseY + position.y
                     return (
-                      <g key={monitor.name} style={{ transition: 'all 0.5s ease' }}>
+                      <g
+                        key={monitorId}
+                        style={{ cursor: 'move', transition: draggingMonitor === monitorId ? 'none' : 'all 0.5s ease' }}
+                        onMouseDown={(e) => handleMonitorMouseDown(e, monitorId)}
+                      >
                         <rect
-                          x={baseX}
-                          y={baseY}
+                          x={finalX}
+                          y={finalY}
                           width={rectWidth}
                           height={rectHeight}
                           fill={monitor.aspectRatio === '16:9' ? '#3b82f6' : monitor.aspectRatio === '21:9' ? '#8b5cf6' : '#ec4899'}
                           stroke="#1e40af"
                           strokeWidth="2"
                           opacity="0.4"
-                          style={{ transition: 'all 0.5s ease' }}
                         />
                         <text
-                          x={baseX + rectWidth / 2}
-                          y={baseY + rectHeight / 2 + (index * 20) - 10}
+                          x={finalX + rectWidth / 2}
+                          y={finalY + rectHeight / 2}
                           textAnchor="middle"
                           fontSize="14"
                           fontWeight="bold"
                           fill="white"
-                          style={{ transition: 'all 0.5s ease' }}
                         >
                           {monitor.name}
                         </text>
@@ -307,25 +417,34 @@ function App() {
                       </text>
 
                       {/* Monitors in this group */}
-                      {group.monitors.map(monitor => {
+                      {group.monitors.map((monitor) => {
+                        // Find the index of this monitor in the full selectedMonitors array
+                        const globalIndex = selectedMonitors.findIndex(m => m === monitor)
+                        const monitorId = `${monitor.name}-${globalIndex}`
                         const rectWidth = monitor.width * scale
                         const rectHeight = monitor.height * scale
+                        const position = monitorPositions[monitorId] || { x: 0, y: 0 }
+                        const finalX = xOffset + position.x
+                        const finalY = group.y + position.y
                         const rect = (
-                          <g key={monitor.name}>
+                          <g
+                            key={monitorId}
+                            style={{ cursor: 'move', transition: draggingMonitor === monitorId ? 'none' : 'all 0.5s ease' }}
+                            onMouseDown={(e) => handleMonitorMouseDown(e, monitorId)}
+                          >
                             <rect
-                              x={xOffset}
-                              y={group.y}
+                              x={finalX}
+                              y={finalY}
                               width={rectWidth}
                               height={rectHeight}
                               fill={monitor.aspectRatio === '16:9' ? '#3b82f6' : monitor.aspectRatio === '21:9' ? '#8b5cf6' : '#ec4899'}
                               stroke="#1e40af"
                               strokeWidth="2"
                               opacity="0.7"
-                              style={{ transition: 'all 0.5s ease' }}
                             />
                             <text
-                              x={xOffset + rectWidth / 2}
-                              y={group.y + rectHeight / 2 - 10}
+                              x={finalX + rectWidth / 2}
+                              y={finalY + rectHeight / 2 - 10}
                               textAnchor="middle"
                               fontSize="14"
                               fontWeight="bold"
@@ -334,8 +453,8 @@ function App() {
                               {monitor.name}
                             </text>
                             <text
-                              x={xOffset + rectWidth / 2}
-                              y={group.y + rectHeight / 2 + 10}
+                              x={finalX + rectWidth / 2}
+                              y={finalY + rectHeight / 2 + 10}
                               textAnchor="middle"
                               fontSize="12"
                               fill="white"
@@ -343,8 +462,8 @@ function App() {
                               {monitor.resolutionX}×{monitor.resolutionY}
                             </text>
                             <text
-                              x={xOffset + rectWidth / 2}
-                              y={group.y + rectHeight / 2 + 25}
+                              x={finalX + rectWidth / 2}
+                              y={finalY + rectHeight / 2 + 25}
                               textAnchor="middle"
                               fontSize="11"
                               fill="white"
