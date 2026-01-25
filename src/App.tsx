@@ -49,6 +49,7 @@ function App() {
 
   // Monitor positions (for individual dragging)
   const [monitorPositions, setMonitorPositions] = useState<Record<string, { x: number; y: number }>>({})
+  const [monitorRotations, setMonitorRotations] = useState<Record<string, number>>({}) // 0, 90, 180, 270
   const [draggingMonitor, setDraggingMonitor] = useState<string | null>(null)
   const [monitorDragStart, setMonitorDragStart] = useState({ x: 0, y: 0 })
 
@@ -91,6 +92,22 @@ function App() {
     setPanX(0)
     setPanY(0)
     setMonitorPositions({})
+    setMonitorRotations({})
+  }
+
+  const rotateMonitor = (monitorId: string) => {
+    setMonitorRotations(prev => {
+      const currentRotation = prev[monitorId] || 0
+      const nextRotation = (currentRotation + 90) % 360
+      return { ...prev, [monitorId]: nextRotation }
+    })
+  }
+
+  const getRotatedDimensions = (width: number, height: number, rotation: number) => {
+    if (rotation === 90 || rotation === 270) {
+      return { width: height, height: width } // Swap dimensions
+    }
+    return { width, height }
   }
 
   // Monitor drag handlers
@@ -119,13 +136,20 @@ function App() {
       if (monitorId === draggingMonitor) return
 
       const otherPos = monitorPositions[monitorId] || { x: 0, y: 0 }
+      const otherRotation = monitorRotations[monitorId] || 0
       const draggedMonitor = selectedMonitors.find((_, i) => `${selectedMonitors[i].name}-${i}` === draggingMonitor)
       if (!draggedMonitor) return
 
-      const otherWidth = monitor.width * scale
-      const otherHeight = monitor.height * scale
-      const draggedWidth = draggedMonitor.width * scale
-      const draggedHeight = draggedMonitor.height * scale
+      const draggedRotation = monitorRotations[draggingMonitor] || 0
+
+      // Get rotated dimensions
+      const otherDims = getRotatedDimensions(monitor.width * scale, monitor.height * scale, otherRotation)
+      const draggedDims = getRotatedDimensions(draggedMonitor.width * scale, draggedMonitor.height * scale, draggedRotation)
+
+      const otherWidth = otherDims.width
+      const otherHeight = otherDims.height
+      const draggedWidth = draggedDims.width
+      const draggedHeight = draggedDims.height
 
       // Snap horizontal (right edge to left edge, or left edge to right edge)
       if (Math.abs((newX + draggedWidth) - otherPos.x) < snapThreshold) {
@@ -322,7 +346,7 @@ function App() {
 
         <section className="visualization">
           <div className="zoom-controls">
-            <p>Zoom: {zoom.toFixed(1)}x | Drag canvas to pan, drag monitors to arrange, scroll to zoom</p>
+            <p>Zoom: {zoom.toFixed(1)}x | Drag canvas to pan, drag monitors to move, click ↻ to rotate, scroll to zoom</p>
             <button onClick={resetView} className="reset-btn">Reset View</button>
           </div>
           <div
@@ -357,36 +381,72 @@ function App() {
                   const baseY = 50
                   return selectedMonitors.map((monitor, index) => {
                     const monitorId = `${monitor.name}-${index}`
-                    const rectWidth = monitor.width * scale
-                    const rectHeight = monitor.height * scale
+                    const baseRectWidth = monitor.width * scale
+                    const baseRectHeight = monitor.height * scale
+                    const rotation = monitorRotations[monitorId] || 0
+                    const rotatedDims = getRotatedDimensions(baseRectWidth, baseRectHeight, rotation)
                     const position = monitorPositions[monitorId] || { x: 0, y: 0 }
                     const finalX = baseX + position.x
                     const finalY = baseY + position.y
+
+                    // Center point for rotation
+                    const centerX = finalX + rotatedDims.width / 2
+                    const centerY = finalY + rotatedDims.height / 2
+
                     return (
                       <g key={monitorId}>
                         <g
+                          transform={`rotate(${rotation} ${centerX} ${centerY})`}
                           style={{ cursor: 'move', transition: draggingMonitor === monitorId ? 'none' : 'all 0.5s ease' }}
                           onMouseDown={(e) => handleMonitorMouseDown(e, monitorId)}
                         >
                           <rect
                             x={finalX}
                             y={finalY}
-                            width={rectWidth}
-                            height={rectHeight}
+                            width={baseRectWidth}
+                            height={baseRectHeight}
                             fill={monitor.aspectRatio === '16:9' ? '#3b82f6' : monitor.aspectRatio === '21:9' ? '#8b5cf6' : '#ec4899'}
                             stroke="#1e40af"
                             strokeWidth="2"
                             opacity="0.4"
                           />
                           <text
-                            x={finalX + rectWidth / 2}
-                            y={finalY + rectHeight / 2}
+                            x={finalX + baseRectWidth / 2}
+                            y={finalY + baseRectHeight / 2}
                             textAnchor="middle"
                             fontSize="14"
                             fontWeight="bold"
                             fill="white"
                           >
                             {monitor.name}
+                          </text>
+                        </g>
+                        {/* Rotate button */}
+                        <g
+                          style={{ cursor: 'pointer' }}
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            rotateMonitor(monitorId)
+                          }}
+                        >
+                          <circle
+                            cx={finalX + 10}
+                            cy={finalY + 10}
+                            r="8"
+                            fill="#22c55e"
+                            stroke="white"
+                            strokeWidth="1"
+                          />
+                          <text
+                            x={finalX + 10}
+                            y={finalY + 10}
+                            textAnchor="middle"
+                            dominantBaseline="central"
+                            fontSize="10"
+                            fontWeight="bold"
+                            fill="white"
+                          >
+                            ↻
                           </text>
                         </g>
                         {/* Close button */}
@@ -398,7 +458,7 @@ function App() {
                           }}
                         >
                           <circle
-                            cx={finalX + rectWidth - 10}
+                            cx={finalX + rotatedDims.width - 10}
                             cy={finalY + 10}
                             r="8"
                             fill="#ef4444"
@@ -406,7 +466,7 @@ function App() {
                             strokeWidth="1"
                           />
                           <text
-                            x={finalX + rectWidth - 10}
+                            x={finalX + rotatedDims.width - 10}
                             y={finalY + 10}
                             textAnchor="middle"
                             dominantBaseline="central"
@@ -450,30 +510,38 @@ function App() {
                         // Find the index of this monitor in the full selectedMonitors array
                         const globalIndex = selectedMonitors.findIndex(m => m === monitor)
                         const monitorId = `${monitor.name}-${globalIndex}`
-                        const rectWidth = monitor.width * scale
-                        const rectHeight = monitor.height * scale
+                        const baseRectWidth = monitor.width * scale
+                        const baseRectHeight = monitor.height * scale
+                        const rotation = monitorRotations[monitorId] || 0
+                        const rotatedDims = getRotatedDimensions(baseRectWidth, baseRectHeight, rotation)
                         const position = monitorPositions[monitorId] || { x: 0, y: 0 }
                         const finalX = xOffset + position.x
                         const finalY = group.y + position.y
+
+                        // Center point for rotation
+                        const centerX = finalX + rotatedDims.width / 2
+                        const centerY = finalY + rotatedDims.height / 2
+
                         const rect = (
                           <g key={monitorId}>
                             <g
+                              transform={`rotate(${rotation} ${centerX} ${centerY})`}
                               style={{ cursor: 'move', transition: draggingMonitor === monitorId ? 'none' : 'all 0.5s ease' }}
                               onMouseDown={(e) => handleMonitorMouseDown(e, monitorId)}
                             >
                               <rect
                                 x={finalX}
                                 y={finalY}
-                                width={rectWidth}
-                                height={rectHeight}
+                                width={baseRectWidth}
+                                height={baseRectHeight}
                                 fill={monitor.aspectRatio === '16:9' ? '#3b82f6' : monitor.aspectRatio === '21:9' ? '#8b5cf6' : '#ec4899'}
                                 stroke="#1e40af"
                                 strokeWidth="2"
                                 opacity="0.7"
                               />
                               <text
-                                x={finalX + rectWidth / 2}
-                                y={finalY + rectHeight / 2 - 10}
+                                x={finalX + baseRectWidth / 2}
+                                y={finalY + baseRectHeight / 2 - 10}
                                 textAnchor="middle"
                                 fontSize="14"
                                 fontWeight="bold"
@@ -482,8 +550,8 @@ function App() {
                                 {monitor.name}
                               </text>
                               <text
-                                x={finalX + rectWidth / 2}
-                                y={finalY + rectHeight / 2 + 10}
+                                x={finalX + baseRectWidth / 2}
+                                y={finalY + baseRectHeight / 2 + 10}
                                 textAnchor="middle"
                                 fontSize="12"
                                 fill="white"
@@ -491,13 +559,41 @@ function App() {
                                 {monitor.resolutionX}×{monitor.resolutionY}
                               </text>
                               <text
-                                x={finalX + rectWidth / 2}
-                                y={finalY + rectHeight / 2 + 25}
+                                x={finalX + baseRectWidth / 2}
+                                y={finalY + baseRectHeight / 2 + 25}
                                 textAnchor="middle"
                                 fontSize="11"
                                 fill="white"
                               >
                                 {monitor.width.toFixed(1)}" × {monitor.height.toFixed(1)}"
+                              </text>
+                            </g>
+                            {/* Rotate button */}
+                            <g
+                              style={{ cursor: 'pointer' }}
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                rotateMonitor(monitorId)
+                              }}
+                            >
+                              <circle
+                                cx={finalX + 10}
+                                cy={finalY + 10}
+                                r="8"
+                                fill="#22c55e"
+                                stroke="white"
+                                strokeWidth="1"
+                              />
+                              <text
+                                x={finalX + 10}
+                                y={finalY + 10}
+                                textAnchor="middle"
+                                dominantBaseline="central"
+                                fontSize="10"
+                                fontWeight="bold"
+                                fill="white"
+                              >
+                                ↻
                               </text>
                             </g>
                             {/* Close button */}
@@ -509,7 +605,7 @@ function App() {
                               }}
                             >
                               <circle
-                                cx={finalX + rectWidth - 10}
+                                cx={finalX + rotatedDims.width - 10}
                                 cy={finalY + 10}
                                 r="8"
                                 fill="#ef4444"
@@ -517,7 +613,7 @@ function App() {
                                 strokeWidth="1"
                               />
                               <text
-                                x={finalX + rectWidth - 10}
+                                x={finalX + rotatedDims.width - 10}
                                 y={finalY + 10}
                                 textAnchor="middle"
                                 dominantBaseline="central"
@@ -530,7 +626,7 @@ function App() {
                             </g>
                           </g>
                         )
-                        xOffset += rectWidth + 20
+                        xOffset += rotatedDims.width + 20
                         return rect
                       })}
                     </g>
