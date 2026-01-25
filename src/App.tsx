@@ -310,19 +310,60 @@ function App() {
 
           <p>Select monitors to compare (click to add, can add multiple of same model):</p>
 
-          <div className="monitor-chips">
-            {monitors.map(monitor => (
-              <button
-                key={monitor.name}
-                className="monitor-chip"
-                onClick={() => toggleMonitor(monitor)}
-              >
-                {monitor.name}
-                <span className="chip-details">
-                  {monitor.resolutionX}×{monitor.resolutionY}
-                </span>
-              </button>
-            ))}
+          <div className="monitor-groups">
+            <div className="monitor-group">
+              <h4>Standard (16:9)</h4>
+              <div className="monitor-chips">
+                {monitors.filter(m => m.aspectRatio === '16:9').map(monitor => (
+                  <button
+                    key={monitor.name}
+                    className="monitor-chip"
+                    onClick={() => toggleMonitor(monitor)}
+                  >
+                    {monitor.name}
+                    <span className="chip-details">
+                      {monitor.resolutionX}×{monitor.resolutionY}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="monitor-group">
+              <h4>Ultrawide (21:9)</h4>
+              <div className="monitor-chips">
+                {monitors.filter(m => m.aspectRatio === '21:9').map(monitor => (
+                  <button
+                    key={monitor.name}
+                    className="monitor-chip"
+                    onClick={() => toggleMonitor(monitor)}
+                  >
+                    {monitor.name}
+                    <span className="chip-details">
+                      {monitor.resolutionX}×{monitor.resolutionY}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="monitor-group">
+              <h4>Super-wide (32:9)</h4>
+              <div className="monitor-chips">
+                {monitors.filter(m => m.aspectRatio === '32:9').map(monitor => (
+                  <button
+                    key={monitor.name}
+                    className="monitor-chip"
+                    onClick={() => toggleMonitor(monitor)}
+                  >
+                    {monitor.name}
+                    <span className="chip-details">
+                      {monitor.resolutionX}×{monitor.resolutionY}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </div>
           </div>
 
           {selectedMonitors.length > 0 && (

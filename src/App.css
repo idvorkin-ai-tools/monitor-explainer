@@ -151,11 +151,24 @@ h3 {
 }
 
 /* Monitor Selector */
+.monitor-groups {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin-top: 1rem;
+}
+
+.monitor-group h4 {
+  margin: 0 0 0.75rem 0;
+  font-size: 1rem;
+  color: #475569;
+  font-weight: 600;
+}
+
 .monitor-chips {
   display: flex;
   flex-wrap: wrap;
   gap: 0.75rem;
-  margin-top: 1rem;
 }
 
 .monitor-chip {
