@@ -1,0 +1,521 @@
+.app {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+  font-family: system-ui, -apple-system, sans-serif;
+}
+
+header {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+header h1 {
+  font-size: 2.5rem;
+  margin-bottom: 0.5rem;
+  color: #1e40af;
+}
+
+.subtitle {
+  font-size: 1.2rem;
+  color: #666;
+}
+
+.intro {
+  margin-bottom: 2rem;
+}
+
+.intro-text {
+  font-size: 1.1rem;
+  line-height: 1.7;
+  color: #374151;
+  background: #fef3c7;
+  border-left: 4px solid #f59e0b;
+  padding: 1.25rem 1.5rem;
+  border-radius: 6px;
+}
+
+.toc {
+  margin-top: 1.5rem;
+  background: #f0f9ff;
+  border: 2px solid #3b82f6;
+  border-radius: 8px;
+  padding: 1.5rem;
+}
+
+.toc h3 {
+  margin: 0 0 1rem 0;
+  color: #1e40af;
+  font-size: 1.2rem;
+}
+
+.toc ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 0.75rem;
+}
+
+.toc li {
+  margin: 0;
+}
+
+.toc a {
+  display: block;
+  padding: 0.5rem 0.75rem;
+  background: white;
+  border: 2px solid #cbd5e1;
+  border-radius: 6px;
+  color: #3b82f6;
+  text-decoration: none;
+  transition: all 0.2s;
+  font-weight: 500;
+}
+
+.toc a:hover {
+  background: #3b82f6;
+  color: white;
+  border-color: #1e40af;
+}
+
+section {
+  margin-bottom: 3rem;
+}
+
+h2 {
+  font-size: 1.8rem;
+  margin-bottom: 1.5rem;
+  color: #1e40af;
+}
+
+h3 {
+  font-size: 1.3rem;
+  margin-bottom: 0.75rem;
+  color: #3b82f6;
+}
+
+/* Dimensions Grid */
+.dimensions-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.dimension-card {
+  background: #f0f9ff;
+  border: 2px solid #3b82f6;
+  border-radius: 8px;
+  padding: 1.5rem;
+}
+
+.dimension-card ul {
+  text-align: left;
+  margin-top: 0.5rem;
+}
+
+.warning-box {
+  background: #fef3c7;
+  border: 2px solid #f59e0b;
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+.warning-box h3 {
+  margin-top: 0;
+  color: #f59e0b;
+}
+
+/* Diagonal Confusion, Curved Monitors, Pixel Density & Panel Type */
+.diagonal-confusion,
+.curved-monitors,
+.pixel-density,
+.panel-type {
+  margin-bottom: 3rem;
+}
+
+/* Terminology */
+.terminology-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.term-card {
+  background: #f8fafc;
+  border: 2px solid #cbd5e1;
+  border-radius: 8px;
+  padding: 1.5rem;
+}
+
+.term-card ul {
+  text-align: left;
+}
+
+.term-card .problem {
+  margin-top: 1rem;
+  padding: 0.75rem;
+  background: #fee2e2;
+  border-left: 4px solid #ef4444;
+  font-weight: 500;
+}
+
+.examples {
+  background: #f1f5f9;
+  border-radius: 8px;
+  padding: 1.5rem;
+}
+
+.examples ul {
+  text-align: left;
+  margin-top: 0.5rem;
+}
+
+/* View Mode Selector */
+.view-mode-selector {
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  background: #f8fafc;
+  border-radius: 8px;
+  border: 2px solid #cbd5e1;
+}
+
+.view-mode-selector p {
+  margin: 0 0 0.75rem 0;
+  font-weight: 600;
+  color: #475569;
+}
+
+.view-mode-buttons {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.view-mode-btn {
+  background: white;
+  border: 2px solid #cbd5e1;
+  border-radius: 6px;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.view-mode-btn:hover {
+  border-color: #3b82f6;
+  background: #f0f9ff;
+}
+
+.view-mode-btn.active {
+  background: #3b82f6;
+  border-color: #1e40af;
+  color: white;
+}
+
+/* Igor's Monitors */
+.igor-setup-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.igor-monitor-card {
+  background: #f0f9ff;
+  border: 2px solid #3b82f6;
+  border-radius: 8px;
+  padding: 1.5rem;
+  text-align: center;
+}
+
+.igor-monitor-card h3 {
+  margin: 0 0 0.5rem 0;
+  color: #1e40af;
+}
+
+.igor-monitor-card p {
+  margin: 0 0 1rem 0;
+  color: #475569;
+  font-size: 0.95rem;
+}
+
+.add-monitor-btn {
+  background: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 0.6rem 1.2rem;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background 0.2s;
+}
+
+.add-monitor-btn:hover {
+  background: #2563eb;
+}
+
+/* Monitor Catalog Grid */
+.monitor-catalog-grid {
+  margin: 1.5rem 0;
+  background: white;
+  border-radius: 8px;
+  border: 2px solid #cbd5e1;
+  overflow: hidden;
+}
+
+.catalog-header {
+  display: grid;
+  grid-template-columns: 80px 1fr 1fr 1fr;
+  background: #f1f5f9;
+  border-bottom: 2px solid #cbd5e1;
+  font-weight: 600;
+  color: #475569;
+}
+
+.catalog-header .size-label,
+.catalog-header .aspect-label {
+  padding: 0.75rem;
+  text-align: center;
+  border-right: 1px solid #e2e8f0;
+}
+
+.catalog-header .aspect-label:last-child,
+.catalog-row .catalog-cell:last-child {
+  border-right: none;
+}
+
+.catalog-row {
+  display: grid;
+  grid-template-columns: 80px 1fr 1fr 1fr;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.catalog-row:last-child {
+  border-bottom: none;
+}
+
+.catalog-row .size-label {
+  padding: 0.75rem;
+  text-align: center;
+  font-weight: 600;
+  color: #475569;
+  background: #f8fafc;
+  border-right: 1px solid #e2e8f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.catalog-cell {
+  padding: 0.5rem;
+  border-right: 1px solid #e2e8f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 70px;
+}
+
+.catalog-cell.empty {
+  color: #cbd5e1;
+  font-size: 1.2rem;
+}
+
+.monitor-chip {
+  background: white;
+  border: 2px solid #cbd5e1;
+  border-radius: 6px;
+  padding: 0.5rem 0.75rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  width: 100%;
+}
+
+.monitor-chip:hover {
+  border-color: #3b82f6;
+  background: #f0f9ff;
+}
+
+.chip-details {
+  font-size: 0.75rem;
+  opacity: 0.7;
+}
+
+/* Selected Monitors List */
+.selected-monitors-list {
+  margin-top: 1.5rem;
+  padding: 1rem;
+  background: #f0f9ff;
+  border-radius: 8px;
+  border: 2px solid #3b82f6;
+}
+
+.selected-monitors-list p {
+  margin: 0 0 0.75rem 0;
+  font-weight: 600;
+  color: #1e40af;
+}
+
+.selected-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.selected-chip {
+  background: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 0.4rem 0.75rem;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background 0.2s;
+}
+
+.selected-chip:hover {
+  background: #ef4444;
+}
+
+/* Visualization */
+.zoom-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem;
+  background: #f8fafc;
+  border-radius: 8px;
+  border: 2px solid #cbd5e1;
+  margin-bottom: 1rem;
+}
+
+.zoom-controls p {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #475569;
+}
+
+.reset-btn {
+  background: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background 0.2s;
+}
+
+.reset-btn:hover {
+  background: #2563eb;
+}
+
+.monitor-canvas {
+  padding: 1rem;
+  background: white;
+  border-radius: 8px;
+  overflow: hidden;
+  user-select: none;
+}
+
+/* Key Insights */
+.insight-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+.insight-card {
+  background: #f0fdf4;
+  border: 2px solid #22c55e;
+  border-radius: 8px;
+  padding: 1.5rem;
+}
+
+.insight-card h3 {
+  color: #16a34a;
+  margin-top: 0;
+}
+
+.insight-card ul {
+  text-align: left;
+  margin-top: 0.5rem;
+}
+
+/* Footer */
+footer {
+  text-align: center;
+  margin-top: 4rem;
+  padding-top: 2rem;
+  border-top: 2px solid #e5e7eb;
+  color: #666;
+}
+
+footer a {
+  color: #3b82f6;
+  text-decoration: none;
+}
+
+footer a:hover {
+  text-decoration: underline;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .app {
+    padding: 1rem;
+  }
+
+  header h1 {
+    font-size: 2rem;
+  }
+
+  .subtitle {
+    font-size: 1rem;
+  }
+
+  h2 {
+    font-size: 1.5rem;
+  }
+
+  .dimensions-grid,
+  .terminology-grid,
+  .insight-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .catalog-header,
+  .catalog-row {
+    grid-template-columns: 60px 1fr 1fr 1fr;
+    font-size: 0.85rem;
+  }
+
+  .catalog-header .size-label,
+  .catalog-header .aspect-label,
+  .catalog-row .size-label {
+    padding: 0.5rem 0.25rem;
+    font-size: 0.75rem;
+  }
+
+  .catalog-cell {
+    padding: 0.25rem;
+    min-height: 60px;
+  }
+
+  .monitor-chip {
+    padding: 0.4rem 0.5rem;
+    font-size: 0.85rem;
+  }
+
+  .chip-details {
+    font-size: 0.7rem;
+  }
+}
