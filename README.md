@@ -2,6 +2,8 @@
 
 An interactive web app that explains monitor dimensions, aspect ratios, resolutions, and the confusing "p" vs "K" terminology.
 
+**[🚀 Live Demo](https://monitor-explorer.surge.sh)**
+
 ## Features
 
 - **Visual comparison** of different monitor sizes and aspect ratios
