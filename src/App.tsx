@@ -2,7 +2,7 @@ import { useState, type CSSProperties } from 'react'
 import './App.css'
 
 type AspectRatio = '16:9' | '21:9' | '32:9' | '3:2' | '16:18'
-type Resolution = '1440p' | '2160p' | '2560p' | '2880p' | '3000p'
+type Resolution = '1440p' | '2160p' | '2560p' | '2880p'
 
 interface Monitor {
   diagonal: number
@@ -21,21 +21,31 @@ const monitors: Monitor[] = [
   { diagonal: 32, aspectRatio: '16:9', resolution: '2160p', width: 27.9, height: 15.7, resolutionX: 3840, resolutionY: 2160, name: '32" Standard' },
   { diagonal: 43, aspectRatio: '16:9', resolution: '2160p', width: 37.5, height: 21.1, resolutionX: 3840, resolutionY: 2160, name: '43" Standard' },
 
-  // 21:9 Ultrawide
+  // 21:9 Ultrawide. Inches come from the labelled aspect, as everywhere else here:
+  // 5120x2160 is exactly 64:27 and 3440x1440 exactly 43:18, but every vendor sells
+  // both as "21:9", so 21:9 is what the rows are drawn from. Under true 64:27 the
+  // 45" would be 41.5 x 17.5 and the 52" 47.9 x 20.2 - a rounding apart, and not
+  // worth two conventions in one column.
   { diagonal: 34, aspectRatio: '21:9', resolution: '1440p', width: 31.3, height: 13.4, resolutionX: 3440, resolutionY: 1440, name: '34" Ultrawide' },
   { diagonal: 40, aspectRatio: '21:9', resolution: '2160p', width: 36.8, height: 15.8, resolutionX: 5120, resolutionY: 2160, name: '40" Ultrawide' },
+  // These two ship, so they get names. LG 45GX950A: 45" W-OLED, 800R, ~123 PPI.
+  // LG UltraGear evo G9 52G930B: 52" VA, 1000R, 240Hz, $1,999 - same 5120x2160
+  // stretched over 7 more inches of diagonal, so ~107 PPI.
+  { diagonal: 45, aspectRatio: '21:9', resolution: '2160p', width: 41.4, height: 17.7, resolutionX: 5120, resolutionY: 2160, name: '45" 5K2K (LG)' },
+  { diagonal: 52, aspectRatio: '21:9', resolution: '2160p', width: 47.8, height: 20.5, resolutionX: 5120, resolutionY: 2160, name: '52" 5K2K (LG)' },
 
   // 32:9 Super-ultrawide
   { diagonal: 49, aspectRatio: '32:9', resolution: '1440p', width: 47.2, height: 13.3, resolutionX: 5120, resolutionY: 1440, name: '49" Super-wide' },
   { diagonal: 57, aspectRatio: '32:9', resolution: '2160p', width: 54.9, height: 15.4, resolutionX: 7680, resolutionY: 2160, name: '57" Super-wide' },
 
   // Tall / productivity (physical inches from diagonal: width = D*A/sqrt(A^2+B^2))
-  // No vendor ships a 45" 3:2 - this is the shape, not a product. 4500x3000 is a
-  // real 3:2 panel resolution (Surface Studio), which at 45" works out to ~120 PPI.
-  { diagonal: 45, aspectRatio: '3:2', resolution: '3000p', width: 37.4, height: 25.0, resolutionX: 4500, resolutionY: 3000, name: '45" 3:2' },
   { diagonal: 28.2, aspectRatio: '3:2', resolution: '2560p', width: 23.5, height: 15.6, resolutionX: 3840, resolutionY: 2560, name: '28.2" MateView (3:2)' },
   { diagonal: 27.6, aspectRatio: '16:18', resolution: '2880p', width: 18.3, height: 20.6, resolutionX: 2560, resolutionY: 2880, name: '27.6" DualUp (16:18)' },
 ]
+
+// Landing selection, by name: positional indices silently pick a different monitor
+// the moment a row is inserted above them.
+const defaultSelectionNames = ['27" Standard', '34" Ultrawide', '49" Super-wide']
 
 // Column order for the catalog grid and the canvas legend
 const aspectColumns: { aspect: AspectRatio; header: string; legend: string }[] = [
@@ -60,25 +70,26 @@ const resolutionLabels: Record<Resolution, string> = {
   '2160p': '2160p (4K)',
   '2560p': '2560p',
   '2880p': '2880p',
-  '3000p': '3000p',
 }
 
-// Shared by the catalog grid and the canvas so the two can't drift
+// Shared by the catalog grid and the canvas so the two can't drift.
+// The old 14-20 band held nothing above 15.8"; the 45" 5K2K at 17.7" would have
+// been filed under "~16" tall" and read as two inches shorter than it is.
 const heightBands: { label: string; min: number; max: number }[] = [
   { label: '~13" tall', min: 0, max: 14 },
-  { label: '~16" tall', min: 14, max: 20 },
-  { label: '~21" tall', min: 20, max: 23 },
-  { label: '~25" tall', min: 23, max: Infinity },
+  { label: '~16" tall', min: 14, max: 17 },
+  { label: '~18" tall', min: 17, max: 20 },
+  // Last band stays open-ended: both the grid and the canvas filter through these,
+  // so anything above the top band would silently disappear from both.
+  { label: '~21" tall', min: 20, max: Infinity },
 ]
 
 type ViewMode = 'height' | 'resolution' | 'overlay'
 
 function App() {
-  const [selectedMonitors, setSelectedMonitors] = useState<Monitor[]>([
-    monitors[0], // 27" standard
-    monitors[3], // 34" ultrawide
-    monitors[5], // 49" super-wide
-  ])
+  const [selectedMonitors, setSelectedMonitors] = useState<Monitor[]>(
+    monitors.filter(m => defaultSelectionNames.includes(m.name))
+  )
   const [viewMode, setViewMode] = useState<ViewMode>('height')
 
   // Pan and zoom state
@@ -443,7 +454,7 @@ function App() {
               <ul>
                 <li><strong>1440p</strong> - 2K (1440 pixels tall)</li>
                 <li><strong>2160p</strong> - 4K (2160 pixels tall)</li>
-                <li><strong>2560p / 2880p / 3000p</strong> - Tall panels, more pixels of height</li>
+                <li><strong>2560p / 2880p</strong> - Tall panels, more pixels of height</li>
               </ul>
             </div>
           </div>
@@ -664,7 +675,7 @@ function App() {
 
             <div className="insight-card">
               <h3>Same Width, More Height</h3>
-              <p>A 45" 3:2 is 37.4" × 25.0" - the same width as the 43" 16:9 (37.5" × 21.1"), with 3.9" more height. That's 18% more screen area from the shape alone. Nobody sells one yet; the catalog entry is the shape, not a product.</p>
+              <p>The 28.2" MateView (3:2) is 23.5" × 15.6" - the same width as the 27" 16:9 (23.5" × 13.2"), with 2.4" more height. That's 18% more screen area from the shape alone, off a diagonal only 1.2" bigger.</p>
             </div>
 
             <div className="insight-card">
